@@ -43,7 +43,6 @@ class Hasil(BaseModel):
     download: str
     time: float
     cpu_type: Optional[str] = None
-    cpu_core: Optional[int] = None
     cpu_threads_max: Optional[int] = None
     cpu_frequency_max: Optional[float] = None
     cpu_max_percent: Optional[List] = None
@@ -393,7 +392,6 @@ def ambil_data(
 
 @app.put("/monitoring")
 def ambil_data(input: DataRequest):
-    data = None
     for data in data_httpx:
         if (
             data["status"] == "baru"
@@ -403,8 +401,6 @@ def ambil_data(input: DataRequest):
             cpu_info = cpuinfo.get_cpu_info()
             cpu_type = cpu_info["brand_raw"]
             print("Tipe CPU:", cpu_type)
-            cpu_core = psutil.cpu_count(logical=False)  # Jumlah fisik core CPU
-            print("Jumlah Core Fisik:", cpu_core)
 
             ram = psutil.virtual_memory()
             ram_total = ram.total  # Total RAM dalam bytes
@@ -449,7 +445,6 @@ def ambil_data(input: DataRequest):
                     ram_available_min = ram_available
 
             data["cpu_type"] = cpu_type
-            data["cpu_core"] = cpu_core
             data["cpu_threads_max"] = cpu_threads_max
             data["cpu_frequency_max"] = cpu_frequency_max
             data["cpu_max_percent"] = cpu_percent_max
@@ -457,7 +452,5 @@ def ambil_data(input: DataRequest):
             data["ram_max_percent"] = ram_percent_max
             data["ram_min_available"] = format_bytes(ram_available_min)
             data["status"] = "lama"
-        else:
-            data = None
 
-    return data
+    return data_httpx
